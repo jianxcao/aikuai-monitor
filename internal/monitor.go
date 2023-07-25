@@ -14,6 +14,33 @@ import (
 	"github.com/jakeslee/ikuai/action"
 )
 
+/*
+请求参数格式
+{
+    "func_name": "monitor_lanip",
+    "action": "show",
+    "param": {
+        "TYPE": "data,total",
+        "ORDER_BY": "ip_addr_int",
+        "orderType": "IP",
+        "limit": "0,20",
+        "ORDER": "",
+        "FINDS": "ip_addr,mac,comment,username",
+        "KEYWORDS": "ai"
+    }
+}
+*/
+
+func NewMonitorLanIpv6Action() *action.Action {
+	return &action.Action{
+		Action:   "show",
+		FuncName: "monitor_lanipv6",
+		Param: map[string]interface{}{
+			"TYPE": "data,total",
+		},
+	}
+}
+
 type IkuaiMonitor struct {
 	Users    []*User
 	Clients  []*ikuai.IKuai
@@ -59,7 +86,17 @@ func (m *IkuaiMonitor) LoginOneClient(i *ikuai.IKuai) (string, error) {
 	return i.Login()
 }
 
-func (m *IkuaiMonitor) GetAllMonitorLan() map[string]*action.ShowMonitorResult {
+func (m *IkuaiMonitor) ShowMonitorLanV6(i *ikuai.IKuai, session string) (*action.ShowMonitorResult, error) {
+	resp := &action.ShowMonitorResult{}
+	res, err := i.Run(session, NewMonitorLanIpv6Action(), resp)
+	if err != nil {
+		log.Println("res", res)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (m *IkuaiMonitor) GetAllMonitorLan(isV6 bool) map[string]*action.ShowMonitorResult {
 	var wg sync.WaitGroup
 	var result = make(map[string]*action.ShowMonitorResult)
 	if len(m.Clients) != 0 {
@@ -83,18 +120,29 @@ func (m *IkuaiMonitor) GetAllMonitorLan() map[string]*action.ShowMonitorResult {
 						return
 					}
 				}
-				lan, err := c.ShowMonitorLan()
-				if err != nil {
-					log.Println(err)
+				var lan *action.ShowMonitorResult
+				var err error
+				if isV6 {
+					lan, err = m.ShowMonitorLanV6(c, m.Sessions[i])
+				} else {
+					lan, err = c.ShowMonitorLan()
 				}
-				if err != nil || (lan != nil && lan.Result.Result == NOT_LOGIN) {
-					err := dobuleCheckLogin()
+				if err != nil {
+					fmt.Println(2, err)
+				}
+				if lan != nil && lan.Result.Result == NOT_LOGIN {
+					fmt.Println("登录校验未通过，或者出错，尝试重新调用接口登录")
+					err = dobuleCheckLogin()
 					if err != nil {
 						return
 					}
-					lan, err = c.ShowMonitorLan()
+					if isV6 {
+						lan, err = m.ShowMonitorLanV6(c, m.Sessions[i])
+					} else {
+						lan, err = c.ShowMonitorLan()
+					}
 					if err != nil {
-						log.Println(err)
+						fmt.Println(1, err)
 					}
 				}
 				if err != nil {
@@ -142,7 +190,7 @@ func (m *IkuaiMonitor) GetMonitorInterface() map[string]*action.ShowMonitorInter
 				if err != nil {
 					log.Println(err)
 				}
-				if err != nil || (res != nil && res.Result.Result == NOT_LOGIN) {
+				if res != nil && res.Result.Result == NOT_LOGIN {
 					fmt.Println("登录校验未通过，或者出错，尝试重新调用接口登录")
 					err := dobuleCheckLogin()
 					if err != nil {

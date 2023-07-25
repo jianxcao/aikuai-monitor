@@ -1,6 +1,9 @@
 export { normalizeKey } from './object'
 
-export const FormatSize = (size: number) => {
+export const FormatSize = (size?: number) => {
+  if (!size) {
+    return size
+  }
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
   let unitIndex = 0
   while (size >= 1024 && unitIndex < units.length - 1) {
@@ -11,6 +14,9 @@ export const FormatSize = (size: number) => {
 }
 
 export const FormatNum = (size: number) => {
+  if (!size) {
+    return size
+  }
   if (size < 10000) {
     return size
   }

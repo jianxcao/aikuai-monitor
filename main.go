@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
@@ -63,7 +64,6 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 func EntryHtml() gin.HandlerFunc {
@@ -77,6 +77,25 @@ func EntryHtml() gin.HandlerFunc {
 }
 
 func Server() {
+	var cacheData = map[string]interface{}{}
+	go func() {
+		ticker := time.Tick(time.Duration(3) * time.Second)
+		for range ticker {
+			go func() {
+				res := aikuaimonitor.Monitor.GetMonitorInterface()
+				cacheData["interface"] = res
+			}()
+			go func() {
+				res := aikuaimonitor.Monitor.GetAllMonitorLan(false)
+				cacheData["lanv4"] = res
+			}()
+			go func() {
+				res := aikuaimonitor.Monitor.GetAllMonitorLan(true)
+				cacheData["lanv6"] = res
+			}()
+		}
+	}()
+
 	// 创建Gin路由
 	r := gin.Default()
 	r.LoadHTMLGlob("./front/dist/*.html")
@@ -88,7 +107,27 @@ func Server() {
 		response := gin.H{
 			"message": "Success",
 			"code":    0,
-			"data":    aikuaimonitor.Monitor.GetMonitorInterface(),
+			"data":    cacheData["interface"],
+		}
+		// 返回JSON响应
+		c.JSON(http.StatusOK, response)
+	})
+	api.GET("/lanv4", func(c *gin.Context) {
+		// 构建JSON响应
+		response := gin.H{
+			"message": "Success",
+			"code":    0,
+			"data":    cacheData["lanv4"],
+		}
+		// 返回JSON响应
+		c.JSON(http.StatusOK, response)
+	})
+	api.GET("/lanv6", func(c *gin.Context) {
+		// 构建JSON响应
+		response := gin.H{
+			"message": "Success",
+			"code":    0,
+			"data":    cacheData["lanv6"],
 		}
 		// 返回JSON响应
 		c.JSON(http.StatusOK, response)

@@ -4,7 +4,7 @@ import { normalizeKey } from '@/utils/index'
 import InterfaceView from '../components/InterfaceView.vue'
 const data = ref({})
 let timeId: number | undefined
-const fetchData = async () => {
+const fetchInterface = async () => {
   try {
     const res = await fetch("/api/interface")
     let d = await res.json()
@@ -16,10 +16,12 @@ const fetchData = async () => {
     return {}
   }
 }
+
+
 onMounted(async () => {
-  await fetchData()
+  await fetchInterface()
   timeId = setInterval(() => {
-    fetchData()
+    fetchInterface()
   }, 3000)
 })
 onUnmounted(() => {
