@@ -15,11 +15,11 @@ echo "当前路径：$current_path"
 
 cd front
 
-# npm install yarn
+npm install yarn
 
-# yarn install
+yarn install
 
-# yarn build
+yarn build
 
 cd ..
 
