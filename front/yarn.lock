@@ -226,7 +226,7 @@
 
 "@types/web-bluetooth@^0.0.17":
   version "0.0.17"
-  resolved "https://npm.shopee.io/@types%2fweb-bluetooth/-/web-bluetooth-0.0.17.tgz#5c9f3c617f64a9735d7b72a7cc671e166d900c40"
+  resolved "https://npm.shopee.io/@types%2fweb-bluetooth/-/web-bluetooth-0.0.17.tgz"
   integrity sha512-4p9vcSmxAayx72yn70joFoL44c9MO/0+iVEBIQXe3v2h2SiAsEIo/G5v6ObFWvNKRFjbrVadNf9LqEEZeQPzdA==
 
 "@typescript-eslint/eslint-plugin@^5.59.1":
@@ -480,7 +480,7 @@
 
 "@vueuse/core@^10.2.1":
   version "10.2.1"
-  resolved "https://npm.shopee.io/@vueuse%2fcore/-/core-10.2.1.tgz#a62b54cdaf1496138a9f8a7df7f9d644892b421f"
+  resolved "https://npm.shopee.io/@vueuse%2fcore/-/core-10.2.1.tgz"
   integrity sha512-c441bfMbkAwTNwVRHQ0zdYZNETK//P84rC01aP2Uy/aRFCiie9NE/k9KdIXbno0eDYP5NPUuWv0aA/I4Unr/7w==
   dependencies:
     "@types/web-bluetooth" "^0.0.17"
@@ -490,12 +490,12 @@
 
 "@vueuse/metadata@10.2.1":
   version "10.2.1"
-  resolved "https://npm.shopee.io/@vueuse%2fmetadata/-/metadata-10.2.1.tgz#0865066def62ed97629c417ec79678d508d22934"
+  resolved "https://npm.shopee.io/@vueuse%2fmetadata/-/metadata-10.2.1.tgz"
   integrity sha512-3Gt68mY/i6bQvFqx7cuGBzrCCQu17OBaGWS5JdwISpMsHnMKKjC2FeB5OAfMcCQ0oINfADP3i9A4PPRo0peHdQ==
 
 "@vueuse/shared@10.2.1":
   version "10.2.1"
-  resolved "https://npm.shopee.io/@vueuse%2fshared/-/shared-10.2.1.tgz#0fd0a5dd014b7713b7fe03347b30fad69bb15b30"
+  resolved "https://npm.shopee.io/@vueuse%2fshared/-/shared-10.2.1.tgz"
   integrity sha512-QWHq2bSuGptkcxx4f4M/fBYC3Y8d3M2UYyLsyzoPgEoVzJURQ0oJeWXu79OiLlBb8gTKkqe4mO85T/sf39mmiw==
   dependencies:
     vue-demi ">=0.14.5"
@@ -2167,7 +2167,7 @@ vite@^4.3.9:
 
 vue-demi@>=0.14.5:
   version "0.14.5"
-  resolved "https://npm.shopee.io/vue-demi/-/vue-demi-0.14.5.tgz#676d0463d1a1266d5ab5cba932e043d8f5f2fbd9"
+  resolved "https://npm.shopee.io/vue-demi/-/vue-demi-0.14.5.tgz"
   integrity sha512-o9NUVpl/YlsGJ7t+xuqJKx8EBGf1quRhCiT6D/J0pfwmk9zUwYkC7yrF4SZCe6fETvSM3UNL2edcbYrSyc4QHA==
 
 vue-eslint-parser@^9.1.1, vue-eslint-parser@^9.3.0:

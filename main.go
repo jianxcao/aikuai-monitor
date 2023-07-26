@@ -80,12 +80,12 @@ func EntryHtml() gin.HandlerFunc {
 
 func Server() {
 	var cacheData = map[string]interface{}{}
-	stopTicker := time.NewTimer(60 * time.Second)
+	var mu sync.Mutex
+	var timeLock sync.Mutex
+	isStop := false
+	var lastTime time.Time = time.Now()
 	ticker := time.NewTicker(3 * time.Second)
-	isStop := true
-	ticker.Stop()
-	go func(ticker *time.Ticker) {
-		var mu sync.Mutex
+	task := func(ticker *time.Ticker) {
 		for {
 			select {
 			case <-ticker.C:
@@ -158,22 +158,36 @@ func Server() {
 				}()
 			}
 		}
-	}(ticker)
+	}
+	go task(ticker)
 
-	go func(stopTicker *time.Timer, ticker *time.Ticker) {
-		for range stopTicker.C {
-			log.Println("stop ticker")
-			isStop = true
-			ticker.Stop()
+	go func() {
+		for {
+			// 每10s检测一次
+			time.Sleep(10 * time.Second)
+			timeLock.Lock()
+			elapsed := time.Since(lastTime)
+			log.Println("check stop task")
+			if isStop {
+				return
+			}
+			if elapsed >= 1*time.Minute {
+				log.Println("sotp current task")
+				isStop = true
+				ticker.Stop()
+			}
+			timeLock.Unlock()
 		}
-	}(stopTicker, ticker)
+	}()
 
 	tickerMiddleWare := func() gin.HandlerFunc {
 		return func(c *gin.Context) {
+			lastTime = time.Now()
 			if isStop {
-				stopTicker.Reset(60 * time.Second)
 				isStop = false
-				ticker.Reset(3 * time.Second)
+				log.Println("start new task")
+				ticker = time.NewTicker(3 * time.Second)
+				go task(ticker)
 			}
 		}
 	}
