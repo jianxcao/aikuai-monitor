@@ -90,7 +90,7 @@ func (m *IkuaiMonitor) ShowMonitorLanV6(i *ikuai.IKuai, session string) (*action
 	resp := &action.ShowMonitorResult{}
 	res, err := i.Run(session, NewMonitorLanIpv6Action(), resp)
 	if err != nil {
-		log.Println("res", res)
+		log.Println(res)
 		return nil, err
 	}
 	return resp, nil
@@ -128,7 +128,7 @@ func (m *IkuaiMonitor) GetAllMonitorLan(isV6 bool) map[string]*action.ShowMonito
 					lan, err = c.ShowMonitorLan()
 				}
 				if err != nil {
-					fmt.Println(2, err)
+					fmt.Println(err)
 				}
 				if lan != nil && lan.Result.Result == NOT_LOGIN {
 					fmt.Println("登录校验未通过，或者出错，尝试重新调用接口登录")
@@ -142,7 +142,7 @@ func (m *IkuaiMonitor) GetAllMonitorLan(isV6 bool) map[string]*action.ShowMonito
 						lan, err = c.ShowMonitorLan()
 					}
 					if err != nil {
-						fmt.Println(1, err)
+						fmt.Println(err)
 					}
 				}
 				if err != nil {

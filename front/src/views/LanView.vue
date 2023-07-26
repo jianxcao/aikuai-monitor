@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { normalizeKey } from '@/utils';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { FormatSize, FormatNum } from '@/utils'
 import { useUrlSearchParams } from '@vueuse/core'
 import IconUp from '@/components/icons/IconUp.vue';
@@ -167,7 +167,7 @@ onMounted(async () => {
     }, 3000)
 })
 
-onMounted(() => {
+onUnmounted(() => {
     clearInterval(timeId)
 })
 </script>

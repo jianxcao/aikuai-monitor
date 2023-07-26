@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jakeslee/ikuai/action"
 	"github.com/urfave/cli/v2"
 )
 
@@ -78,23 +80,103 @@ func EntryHtml() gin.HandlerFunc {
 
 func Server() {
 	var cacheData = map[string]interface{}{}
-	go func() {
-		ticker := time.Tick(time.Duration(3) * time.Second)
-		for range ticker {
-			go func() {
-				res := aikuaimonitor.Monitor.GetMonitorInterface()
-				cacheData["interface"] = res
-			}()
-			go func() {
-				res := aikuaimonitor.Monitor.GetAllMonitorLan(false)
-				cacheData["lanv4"] = res
-			}()
-			go func() {
-				res := aikuaimonitor.Monitor.GetAllMonitorLan(true)
-				cacheData["lanv6"] = res
-			}()
+	stopTicker := time.NewTimer(60 * time.Second)
+	ticker := time.NewTicker(3 * time.Second)
+	isStop := true
+	ticker.Stop()
+	go func(ticker *time.Ticker) {
+		var mu sync.Mutex
+		for {
+			select {
+			case <-ticker.C:
+				log.Println("ticker exec")
+				go func() {
+					res := aikuaimonitor.Monitor.GetMonitorInterface()
+					if res != nil {
+						mu.Lock()
+						old, isHave := cacheData["interface"].(map[string]*action.ShowMonitorInterfaceResult)
+						mu.Unlock()
+						if isHave {
+							for key, val := range res {
+								if val != nil {
+									old[key] = val
+								}
+							}
+							mu.Lock()
+							cacheData["interface"] = old
+							mu.Unlock()
+						} else {
+							mu.Lock()
+							cacheData["interface"] = res
+							mu.Unlock()
+						}
+					}
+				}()
+				go func() {
+					res := aikuaimonitor.Monitor.GetAllMonitorLan(false)
+					if res != nil {
+						mu.Lock()
+						old, isHave := cacheData["lanv4"].(map[string]*action.ShowMonitorResult)
+						mu.Unlock()
+						if isHave {
+							for key, val := range res {
+								if val != nil {
+									old[key] = val
+								}
+							}
+							mu.Lock()
+							cacheData["lanv4"] = old
+							mu.Unlock()
+						} else {
+							mu.Lock()
+							cacheData["lanv4"] = res
+							mu.Unlock()
+						}
+					}
+				}()
+				go func() {
+					res := aikuaimonitor.Monitor.GetAllMonitorLan(true)
+					if res != nil {
+						mu.Lock()
+						old, isHave := cacheData["lanv6"].(map[string]*action.ShowMonitorResult)
+						mu.Unlock()
+						if isHave {
+							for key, val := range res {
+								if val != nil {
+									old[key] = val
+								}
+							}
+							mu.Lock()
+							cacheData["lanv6"] = old
+							mu.Unlock()
+						} else {
+							mu.Lock()
+							cacheData["lanv6"] = res
+							mu.Unlock()
+						}
+					}
+				}()
+			}
 		}
-	}()
+	}(ticker)
+
+	go func(stopTicker *time.Timer, ticker *time.Ticker) {
+		for range stopTicker.C {
+			log.Println("stop ticker")
+			isStop = true
+			ticker.Stop()
+		}
+	}(stopTicker, ticker)
+
+	tickerMiddleWare := func() gin.HandlerFunc {
+		return func(c *gin.Context) {
+			if isStop {
+				stopTicker.Reset(60 * time.Second)
+				isStop = false
+				ticker.Reset(3 * time.Second)
+			}
+		}
+	}
 
 	// 创建Gin路由
 	r := gin.Default()
@@ -102,6 +184,7 @@ func Server() {
 	r.Use(EntryHtml())
 	// 定义API路由
 	api := r.Group("/api")
+	api.Use(tickerMiddleWare())
 	api.GET("/interface", func(c *gin.Context) {
 		// 构建JSON响应
 		response := gin.H{

@@ -105,3 +105,14 @@ func PrintData(res map[string]map[string][][]string, writer *uilive.Writer) {
 	}
 	fmt.Fprint(writer, str)
 }
+
+// 浅层合并map
+func MergeMaps(maps ...map[string]interface{}) map[string]interface{} {
+	mergedMap := make(map[string]interface{})
+	for _, m := range maps {
+		for k, v := range m {
+			mergedMap[k] = v
+		}
+	}
+	return mergedMap
+}
