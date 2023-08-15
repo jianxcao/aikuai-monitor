@@ -101,6 +101,7 @@ const linkData = computed(() => {
               <th>当前下载</th>
               <th>总上传</th>
               <th>总下载</th>
+              <th>连接数</th>
               <th>备注</th>
             </tr>
           </thead>
@@ -123,6 +124,9 @@ const linkData = computed(() => {
               </td>
               <td>
                 {{ FormatSize(ifaceStream.totalDown) }}
+              </td>
+              <td>
+                {{ FormatNum(ifaceStream.connectNum) }}
               </td>
               <td>
                 {{ ifaceStream.comment }}

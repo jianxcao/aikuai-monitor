@@ -14,6 +14,10 @@ export const FormatSize = (size?: number) => {
 }
 
 export const FormatNum = (size: number) => {
+  size = Number(size)
+  if (isNaN(size)) {
+    return null
+  }
   if (!size) {
     return size
   }
